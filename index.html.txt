@@ -1,0 +1,122 @@
+
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+export default function MohanDigitalSeva() {
+  const [requests, setRequests] = useState([]);
+  const [name, setName] = useState("");
+  const [service, setService] = useState("");
+  const [phone, setPhone] = useState("");
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("mohanRequests");
+    if (saved) setRequests(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("mohanRequests", JSON.stringify(requests));
+  }, [requests]);
+
+  const handleSubmit = () => {
+    if (!name || !service || !phone) return alert("कृपया सभी जानकारी भरें");
+    const newReq = { name, service, phone, date: new Date().toLocaleString() };
+    setRequests([...requests, newReq]);
+    setName("");
+    setService("");
+    setPhone("");
+    alert("आपका अनुरोध दर्ज हो गया है!");
+  };
+
+  const handlePayment = () => {
+    window.open("https://paytm.me/qZ-wQ6b", "_blank"); // यहां अपना असली UPI/Paytm लिंक डालें
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-yellow-100 p-4">
+      <header className="text-center py-6">
+        <h1 className="text-4xl font-bold text-purple-800 drop-shadow-lg">मोहन डिजिटल सेवा</h1>
+        <p className="text-gray-700">आपके सभी डिजिटल कार्य एक ही स्थान पर</p>
+      </header>
+
+      {!showAdmin && (
+        <div className="max-w-md mx-auto bg-white shadow-lg rounded-2xl p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">सर्विस अनुरोध फ़ॉर्म</h2>
+          <input
+            className="w-full mb-3 p-2 border rounded"
+            placeholder="आपका नाम"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            className="w-full mb-3 p-2 border rounded"
+            placeholder="सेवा का नाम"
+            value={service}
+            onChange={(e) => setService(e.target.value)}
+          />
+          <input
+            className="w-full mb-3 p-2 border rounded"
+            placeholder="मोबाइल नंबर"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleSubmit}>
+            अनुरोध सबमिट करें
+          </Button>
+
+          <Button className="w-full mt-3 bg-green-500 hover:bg-green-600" onClick={handlePayment}>
+            अभी पेमेंट करें
+          </Button>
+
+          <p
+            className="text-sm text-blue-600 mt-4 cursor-pointer underline"
+            onClick={() => setShowAdmin(true)}
+          >
+            एडमिन लॉगिन
+          </p>
+        </div>
+      )}
+
+      {showAdmin && (
+        <div className="max-w-lg mx-auto bg-white p-6 rounded-xl shadow-lg">
+          {!password ? (
+            <div>
+              <input
+                className="w-full mb-3 p-2 border rounded"
+                placeholder="एडमिन पासवर्ड"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button className="w-full bg-blue-500" onClick={() => {
+                if (password === "mohan123") {
+                  alert("सफलतापूर्वक लॉगिन");
+                  setPassword("done");
+                } else {
+                  alert("गलत पासवर्ड");
+                }
+              }}>लॉगिन</Button>
+            </div>
+          ) : (
+            <div>
+              <h2 className="text-lg font-bold mb-3">ग्राहक अनुरोध सूची</h2>
+              {requests.length === 0 && <p>कोई अनुरोध नहीं मिला।</p>}
+              {requests.map((r, i) => (
+                <Card key={i} className="mb-3">
+                  <CardContent>
+                    <p><b>नाम:</b> {r.name}</p>
+                    <p><b>सेवा:</b> {r.service}</p>
+                    <p><b>मोबाइल:</b> {r.phone}</p>
+                    <p><b>दिनांक:</b> {r.date}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
